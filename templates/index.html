@@ -2,26 +2,194 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SeaweedScan Flask UI</title>
+    <title>🌿 SeaweedScan - Seaweed Image Recognition</title>
+    <style>
+        body {
+            background: url("/static/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #004d40;
+            text-align: center;
+            padding: 40px;
+        }
+
+        #loading-overlay {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            border: 6px solid #b2dfdb;
+            border-top: 6px solid #00796b;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #00796b;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 77, 64, 0.2);
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            background-color: #009688;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #00796b;
+        }
+
+        input[type="submit"] {
+            background-color: #004d40;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #00332e;
+        }
+
+        .result-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .result-column {
+            flex: 1 1 300px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .result-column img {
+            max-width: 100%;
+            border-radius: 10px;
+            border: 3px solid #009688;
+            margin-top: 10px;
+        }
+
+        #preview-image {
+            border: 3px dashed #80cbc4;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1>🌿 SeaweedScan - Frontend</h1>
 
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="image" required>
-        <input type="submit" value="Analyze">
-    </form>
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
 
-    {% if uploaded %}
-        <h2>📥 Uploaded Image</h2>
-        <img src="{{ image_url }}" width="300"><br><br>
+    <div class="container">
+        <h1>🌿 SeaweedScan</h1>
+        <p>Image recognition powered by YOLO - Dive into the ocean of data</p>
 
-        <h3>🔍 Detections:</h3>
-        <ul>
-        {% for cls, det in detections %}
-            <li>Class {{ cls }} - xywh: {{ det }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
+        <!-- Image preview section before form submission -->
+        <div class="result-container" id="preview-section" style="display:none;">
+            <div class="result-column">
+                <h2>🖼️ Selected Image Preview</h2>
+                <img id="preview-image" src="#" alt="Image Preview">
+            </div>
+        </div>
+
+        <!-- Upload form -->
+        <form method="POST" enctype="multipart/form-data" class="upload-section">
+            <label for="image" class="custom-file-upload">📷 Choose Image</label>
+            <input id="image" type="file" name="image" required>
+            <br>
+            <input type="submit" value="🌊 Analyze Image">
+        </form>
+
+        <!-- Prediction results shown after upload -->
+        {% if uploaded %}
+        <div class="result-container">
+            <div class="result-column">
+                <h2>📥 Uploaded Image</h2>
+                <img src="{{ input_img }}">
+            </div>
+            <div class="result-column">
+                <h2>🔍 YOLO Prediction</h2>
+                <img src="{{ output_img }}">
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        SeaweedScan &copy; 2025 | Built with 💙 Flask + YOLO
+    </div>
+
+    <script>
+        const form = document.querySelector('form');
+        const overlay = document.getElementById('loading-overlay');
+        const input = document.getElementById('image');
+        const previewSection = document.getElementById('preview-section');
+        const previewImage = document.getElementById('preview-image');
+
+        form.addEventListener('submit', function () {
+            overlay.style.display = 'flex';
+        });
+
+        input.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                    previewSection.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+
 </body>
 </html>
