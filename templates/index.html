@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SeaweedScan Flask UI</title>
+</head>
+<body>
+    <h1>🌿 SeaweedScan - Frontend</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" required>
+        <input type="submit" value="Analyze">
+    </form>
+
+    {% if uploaded %}
+        <h2>📥 Uploaded Image</h2>
+        <img src="{{ image_url }}" width="300"><br><br>
+
+        <h3>🔍 Detections:</h3>
+        <ul>
+        {% for cls, det in detections %}
+            <li>Class {{ cls }} - xywh: {{ det }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
